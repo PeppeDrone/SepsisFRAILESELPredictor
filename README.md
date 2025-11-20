@@ -1,0 +1,1 @@
+Code and manuscript ("A machine learning model for post-operative sepsis prediction in acute surgical patients: a multi-centre, prospective study") figures are included in the Git. At the following link, trained models and pre-processors are provided for further use and replication of the results.
