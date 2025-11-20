@@ -1,0 +1,189 @@
+# ============================================================================
+# SEPSIS ML PIPELINE - COMPLETE CONFIGURATION
+# ============================================================================
+# All parameters including hyperparameter optimization ranges are configurable
+# Modify any value to customize the pipeline without changing code
+
+# ============================================================================
+# GENERAL SETTINGS
+# ============================================================================
+
+# Random seed for reproducibility
+random_state: 42
+
+# Cross-validation settings
+outer_cv_folds: 5  # Outer CV folds for evaluation
+inner_cv_folds: 10  # Inner CV folds for hyperparameter optimization
+
+# Optuna hyperparameter optimization
+n_trials: 50 # Number of trials per model increase for better optimization, e.g., 100)
+optimization_metric: "f1"  # Options: "accuracy", "roc_auc", "balanced_accuracy", "f1"
+n_jobs: -1  # Parallel jobs (-1 = all available cores)
+
+# Early stopping
+enable_early_stopping: true  # Enable early stopping if no improvement
+early_stopping_patience: 10  # Stop if no improvement for N consecutive trials
+enable_pruning: true  # Enable Optuna pruning (MedianPruner)
+pruning_n_startup_trials: 5  # Number of trials before pruning starts
+pruning_n_warmup_steps: 5  # Minimum steps before pruning check
+
+# ============================================================================
+# DATA SETTINGS
+# ============================================================================
+
+# Data preprocessing
+completion_threshold: 0.70  # Minimum completion rate for features (0.90 = ≥90%)
+outcome_column: "qSOFA"  # Column name for outcome (qSOFA or sepsis)
+outcome_threshold: 2  # Threshold for binary outcome (ignored if already binary)
+
+# Imputation
+knn_neighbors: 10  # Number of neighbors for KNN imputation
+
+# SMOTE (class balancing)
+smote_k_neighbors: 5  # Number of neighbors for SMOTE
+apply_smote: true  # Whether to apply SMOTE
+
+# Standardization
+apply_scaling: true  # Whether to apply StandardScaler
+
+# ============================================================================
+# DIMENSIONALITY REDUCTION
+# ============================================================================
+
+# PCA settings
+pca_variance_threshold: 0.999  # Explained variance threshold (≥0.999)
+pca_whiten: true  # Whether to whiten components
+
+# RFECV settings
+rfecv_cv: 5  # Number of CV folds for RFECV
+rfecv_step: 1  # Step size for feature elimination
+
+# ============================================================================
+# CLASSIFICATION
+# ============================================================================
+
+classification_threshold: 0.5  # Fixed threshold for hard predictions (0.5)
+
+# ============================================================================
+# MODELS TO TRAIN
+# ============================================================================
+# Options: "en", "knn", "dtc", "rf", "xgb"
+# Remove any model to skip it
+
+models:
+  - knn    # Elastic-Net Logistic Regression
+  - en   # K-Nearest Neighbors
+  - rf
+  - xgb
+  # - dtc   # Decision Tree
+  # - rf    # Random Forest
+  # - xgb   # XGBoost
+
+# ============================================================================
+# HYPERPARAMETER OPTIMIZATION RANGES
+# ============================================================================
+
+# Elastic-Net Logistic Regression (en)
+elastic_net:
+  C_min: 0.0001  # Min regularization (log scale)
+  C_max: 100.0   # Max regularization (log scale)
+  l1_ratio_min: 0.0  # Min L1 ratio (0=Ridge, 1=Lasso)
+  l1_ratio_max: 1.0  # Max L1 ratio
+  class_weight: ["balanced"]  # Class weighting options
+  max_iter: 500  # Max iterations
+
+# K-Nearest Neighbors (knn)
+knn:
+  n_neighbors_min: 3   # Min neighbors
+  n_neighbors_max: 30  # Max neighbors
+  weights: ["uniform", "distance"]  # Weighting options
+  metric: ["euclidean", "manhattan", "minkowski"]  # Distance metrics
+
+# Decision Tree (dtc)
+decision_tree:
+  max_depth_min: 2   # Min tree depth
+  max_depth_max: 40  # Max tree depth
+  min_samples_split_min: 2   # Min samples to split
+  min_samples_split_max: 30  # Max samples to split
+  min_samples_leaf_min: 1    # Min samples per leaf
+  min_samples_leaf_max: 20   # Max samples per leaf
+  class_weight: [null, "balanced"]  # Class weighting options
+
+# Random Forest (rf) - Expanded ranges per reviewer
+random_forest:
+  n_estimators_min: 1  # Min number of trees
+  n_estimators_max: 500  # Max number of trees
+  max_depth_none: true   # Allow unlimited depth (None)
+  max_depth_min: 3       # Min depth if not None
+  max_depth_max: 50      # Max depth if not None
+  max_features_options: ["sqrt", "log2", "float"]  # Feature selection options
+  max_features_float_min: 0.5  # Min if float
+  max_features_float_max: 1.0  # Max if float
+  min_samples_split_min: 2   # Min samples to split
+  min_samples_split_max: 20  # Max samples to split
+  min_samples_leaf_min: 1    # Min samples per leaf
+  min_samples_leaf_max: 30   # Max samples per leaf
+  bootstrap: [true, false]   # Bootstrap options
+  class_weight: [null, "balanced"]  # Class weighting options
+
+# XGBoost (xgb) - New model per reviewer
+xgboost:
+  n_estimators_min: 1  # Min boosting rounds
+  n_estimators_max: 500  # Max boosting rounds
+  max_depth_min: 3       # Min tree depth
+  max_depth_max: 50      # Max tree depth
+  learning_rate_min: 0.001  # Min learning rate (log scale)
+  learning_rate_max: 0.3    # Max learning rate (log scale)
+  subsample_min: 0.5     # Min subsample ratio
+  subsample_max: 1.0     # Max subsample ratio
+  colsample_bytree_min: 0.5  # Min feature subsample per tree
+  colsample_bytree_max: 1.0  # Max feature subsample per tree
+  reg_alpha_min: 0.0     # Min L1 regularization
+  reg_alpha_max: 1.0     # Max L1 regularization
+  reg_lambda_min: 0.0    # Min L2 regularization
+  reg_lambda_max: 10.0   # Max L2 regularization
+  min_child_weight_min: 1   # Min sum of instance weight per child
+  min_child_weight_max: 20  # Max sum of instance weight per child
+  gamma_min: 0.0         # Min loss reduction for split
+  gamma_max: 5.0         # Max loss reduction for split
+  eval_metric: "logloss" # Evaluation metric
+
+# ============================================================================
+# ENSEMBLE
+# ============================================================================
+
+create_ensemble: true  # Create majority-vote ensemble from all models
+
+# ============================================================================
+# OUTPUT SETTINGS
+# ============================================================================
+
+save_artifacts: true  # Save per-fold predictions and params
+save_figures: true    # Generate and save figures
+save_reports: true    # Generate and save tables/reports
+
+# Reporting
+confidence_interval: 0.95  # CI level for aggregated metrics (0.95 = 95%)
+
+# Figure settings
+figure_dpi: 300  # DPI for saved figures
+figure_format: "png"  # Format: "png", "svg", "pdf"
+
+# ============================================================================
+# NOTES
+# ============================================================================
+# 
+# Quick adjustments:
+# - Speed up: Reduce n_trials (e.g., 20-30), reduce n_estimators_max
+# - Better performance: Increase n_trials (e.g., 100-200)
+# - Memory issues: Reduce n_estimators_max, set n_jobs to lower value
+# - Imbalanced data: Set class_weight to only ["balanced"]
+# - Feature selection: Adjust completion_threshold (0.7-0.95)
+# 
+# For manuscript replication:
+# - completion_threshold: 0.90
+# - n_trials: 50
+# - All ranges as specified above
+# 
+# ============================================================================
+

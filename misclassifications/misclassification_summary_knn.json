@@ -1,0 +1,7 @@
+{
+  "model": "K-Nearest Neighbors",
+  "total_misclassified": 173,
+  "false_positives": 148,
+  "false_negatives": 25,
+  "false_positive_rate": 0.8554913294797688
+}

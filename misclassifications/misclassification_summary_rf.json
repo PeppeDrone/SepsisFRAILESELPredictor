@@ -1,0 +1,7 @@
+{
+  "model": "Random Forest",
+  "total_misclassified": 98,
+  "false_positives": 70,
+  "false_negatives": 28,
+  "false_positive_rate": 0.7142857142857143
+}

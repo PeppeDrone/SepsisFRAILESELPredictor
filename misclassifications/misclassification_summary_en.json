@@ -1,0 +1,7 @@
+{
+  "model": "Elastic-Net Logistic Regression",
+  "total_misclassified": 153,
+  "false_positives": 135,
+  "false_negatives": 18,
+  "false_positive_rate": 0.8823529411764706
+}

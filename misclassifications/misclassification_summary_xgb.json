@@ -1,0 +1,7 @@
+{
+  "model": "XGBoost",
+  "total_misclassified": 117,
+  "false_positives": 92,
+  "false_negatives": 25,
+  "false_positive_rate": 0.7863247863247863
+}

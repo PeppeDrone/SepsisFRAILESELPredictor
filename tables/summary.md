@@ -1,0 +1,45 @@
+# Sepsis Prediction Model Performance Summary
+
+## Aggregated Metrics Across 5-Fold Cross-Validation
+
+**Classification Threshold**: 0.5 (explicitly enforced for sensitivity/specificity)
+
+| Model                           | ACCURACY            | SENSITIVITY         | SPECIFICITY         | F1                  | ROC_AUC             | PR_AUC              | BRIER               |
+|:--------------------------------|:--------------------|:--------------------|:--------------------|:--------------------|:--------------------|:--------------------|:--------------------|
+| Baseline (Majority Class)       | 0.954 (0.953-0.955) | 0.000 (0.000-0.000) | 1.000 (1.000-1.000) | 0.000 (0.000-0.000) | 0.500 (0.500-0.500) | 0.523 (0.522-0.524) | 0.046 (0.045-0.047) |
+| K-Nearest Neighbors             | 0.933 (0.925-0.941) | 0.790 (0.693-0.887) | 0.940 (0.928-0.952) | 0.521 (0.492-0.550) | 0.901 (0.852-0.949) | 0.579 (0.535-0.623) | 0.052 (0.047-0.057) |
+| Elastic-Net Logistic Regression | 0.941 (0.933-0.949) | 0.850 (0.701-0.999) | 0.945 (0.933-0.957) | 0.568 (0.523-0.614) | 0.948 (0.894-1.002) | 0.752 (0.649-0.855) | 0.071 (0.034-0.108) |
+| Random Forest                   | 0.962 (0.954-0.970) | 0.766 (0.648-0.883) | 0.972 (0.967-0.977) | 0.650 (0.570-0.729) | 0.956 (0.927-0.985) | 0.665 (0.581-0.750) | 0.037 (0.034-0.039) |
+| XGBoost                         | 0.955 (0.942-0.968) | 0.791 (0.671-0.911) | 0.963 (0.948-0.978) | 0.619 (0.549-0.689) | 0.954 (0.923-0.984) | 0.700 (0.632-0.768) | 0.037 (0.026-0.048) |
+| ensemble                        | 0.956 (0.948-0.965) | 0.774 (0.657-0.891) | 0.965 (0.957-0.974) | 0.620 (0.553-0.686) | 0.961 (0.937-0.986) | 0.713 (0.620-0.806) | 0.038 (0.030-0.046) |
+
+## Interpretation
+
+Values shown as: **Mean (95% CI Lower - 95% CI Upper)** across folds.
+
+**Metrics:**
+- **ACCURACY**: Overall classification accuracy
+- **SENSITIVITY**: True positive rate (recall for sepsis class)
+- **SPECIFICITY**: True negative rate
+- **F1**: Harmonic mean of precision and recall
+- **ROC_AUC**: Area under the ROC curve (primary metric for imbalanced data)
+- **PR_AUC**: Area under the Precision-Recall curve
+- **BRIER**: Brier score (lower is better; measures calibration)
+
+## Key Findings
+
+1. **Baseline context**: The majority-class baseline provides context for interpreting accuracy in the presence of class imbalance.
+2. **Primary metrics**: ROC-AUC and F1-score are emphasized as they are more informative for imbalanced classification tasks.
+3. **Threshold**: All sensitivity/specificity values are calculated using a fixed threshold of 0.5.
+4. **Ensemble**: The ensemble combines all individual models via majority vote (mode), with tie-breaking by average probability.
+
+## Extended Analyses per Reviewer Feedback
+
+This analysis extends the original manuscript with:
+- **Expanded Random Forest hyperparameter ranges** (deeper trees, more estimators)
+- **XGBoost** as an additional competitive gradient boosting model
+- **Precision-Recall curves** with AUPRC for better evaluation of imbalanced data
+- **Calibration analysis** with Brier scores to assess probability quality
+- **Decision Curve Analysis (DCA)** to evaluate clinical utility across thresholds
+- **Majority-class baseline** to contextualize performance
+
